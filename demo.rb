@@ -16,5 +16,8 @@ mem2 = Voom::RawMemory.new 32
 mem2.write_int(0, i)
 p mem2.read_int(0)
 
+mem2.write_int(0, -i)
+p mem2.read_int(0)
+
 mem2.write_str(4, s)
 p mem2.read_str(4)

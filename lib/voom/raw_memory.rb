@@ -3,25 +3,18 @@ require "fiddle"
 module Voom
   class RawMemory
     WORD_SIZE   = 4
-    WORD_BOUNDARIES = [0, 8, 16, 24]
+    SIGNED_INT_PATTERN = "l<"
 
     def initialize(bytes = 32)
       @data = Fiddle::Pointer.malloc(bytes)
     end
 
     def write_int(address, int)
-	    WORD_BOUNDARIES.each do |i|
-        @data[address] = (int >> i) % 256
-        address += 1
-      end
+      @data[address, WORD_SIZE] = [int].pack(SIGNED_INT_PATTERN)
     end
 
     def read_int(address)
-      WORD_BOUNDARIES.inject(0) do |m, v|
-        m += @data[address] << v
-        address += 1
-        m
-      end
+      @data[address, WORD_SIZE].unpack(SIGNED_INT_PATTERN).first
     end
 
     def write_str(address, str)
