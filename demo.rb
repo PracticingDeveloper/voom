@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require_relative "lib/voom"
 
 s = "Hello, Terrible Memory Bank!"

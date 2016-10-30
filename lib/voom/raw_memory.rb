@@ -4,7 +4,7 @@ module Fiddle
   SIGNED_INT_PATTERN = "l<"
   DOUBLE_FLOAT_PATTERN = "d"
 
-  class Fiddle::BufferOverflow < IndexError
+  class BufferOverflow < IndexError
   	attr_reader :address, :request
     def initialize(address, request)
       @address = address
