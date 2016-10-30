@@ -1,4 +1,6 @@
 module Voom
+  WORD_SIZE = 4
+
   class Memory
     INT_PATTERN = "l<"
     FLOAT_PATTERN = "d"

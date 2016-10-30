@@ -2,7 +2,7 @@ require "fiddle"
 
 class String
   def alignment_pad
-    self.length % Voom::WORD_SIZE
+    self.length % Fiddle::ALIGN_INT
   end
 
   def aligned_length
@@ -11,22 +11,21 @@ class String
 end
 
 module Fiddle
-  WORD_SIZE = 4
   SIGNED_INT_PATTERN = "l<"
   DOUBLE_FLOAT_PATTERN = "d"
 
   class Pointer
     def write_int(address, int)
-      self[address, WORD_SIZE] = [int].pack(SIGNED_INT_PATTERN)
+      self[address, Fiddle::SIZEOF_INT] = [int].pack(SIGNED_INT_PATTERN)
     end
 
     def read_int(address)
-      self[address, WORD_SIZE].unpack(SIGNED_INT_PATTERN).first
+      self[address, Fiddle::SIZEOF_INT].unpack(SIGNED_INT_PATTERN).first
     end
 
     def write_str(address, str)
       write_int(address, str.length)
-      address += WORD_SIZE
+      address += Fiddle::SIZEOF_INT
       self[address, str.length] = str
       if (misalign = str.alignment_pad) != 0
         self[address + str.length, misalign] = 0.chr * misalign
@@ -35,15 +34,15 @@ module Fiddle
 
     def read_str(address)
       size = read_int(address)
-      self[address + WORD_SIZE, size]
+      self[address + Fiddle::SIZEOF_INT, size]
     end
 
     def write_float(address, float)
-      self[address, 2 * WORD_SIZE] = [float].pack(DOUBLE_FLOAT_PATTERN)
+      self[address, Fiddle::SIZEOF_DOUBLE] = [float].pack(DOUBLE_FLOAT_PATTERN)
     end
 
     def read_float(address)
-      self[address, 2 * WORD_SIZE].unpack(DOUBLE_FLOAT_PATTERN).first
+      self[address, Fiddle::SIZEOF_DOUBLE].unpack(DOUBLE_FLOAT_PATTERN).first
     end
 
     private
