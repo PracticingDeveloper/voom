@@ -2,6 +2,7 @@ require_relative "lib/voom"
 
 s = "Hello, Terrible Memory Bank!"
 i = 4193
+f = 17.00091
 
 mem = Voom::Memory.new
 mem.write_str(0x1337, s)
@@ -29,3 +30,12 @@ p mem2.read_str(4)
 
 mem2.write_str(4, s[0, s.length - 1])
 p mem2.read_str(4)
+
+mem2.write_str(4, s)
+p mem2.read_str(4)
+
+mem2.write_float(4 + s.aligned_length, f)
+p mem2.read_float(4 + s.aligned_length)
+
+mem2.write_float(4 + s.aligned_length + 8, -f)
+p mem2.read_float(4 + s.aligned_length + 8)

@@ -5,7 +5,7 @@ class String
     self.length % Voom::WORD_SIZE
   end
 
-  def aligned_size
+  def aligned_length
     self.length + self.alignment_pad
   end
 end
@@ -39,11 +39,11 @@ module Fiddle
     end
 
     def write_float(address, float)
-      self[address, WORD_SIZE] = [float].pack(DOUBLE_FLOAT_PATTERN)
+      self[address, 2 * WORD_SIZE] = [float].pack(DOUBLE_FLOAT_PATTERN)
     end
 
     def read_float(address)
-      self[address, WORD_SIZE].unpack(DOUBLE_FLOAT_PATTERN).first
+      self[address, 2 * WORD_SIZE].unpack(DOUBLE_FLOAT_PATTERN).first
     end
 
     private
