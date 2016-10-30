@@ -1,6 +1,7 @@
 module Voom
   class Memory
     INT_PATTERN = "l<"
+    FLOAT_PATTERN = "d"
 
     def initialize
       @data = []
@@ -22,6 +23,14 @@ module Voom
     def read_str(address)
       size = read_int(address)
       retrieve(address + WORD_SIZE, size).pack("C*")
+    end
+
+    def write_float(address, float)
+      store(address, [float].pack(FLOAT_PATTERN).bytes)
+    end
+
+    def read_float(address)
+      retrieve(address, 2 * WORD_SIZE).pack("C*").unpack(FLOAT_PATTERN).first
     end
 
     def store(address, bytes)

@@ -11,6 +11,15 @@ p mem.read_str(0x1337)
 mem.write_int(0x1337, i)
 p mem.read_int(0x1337)
 
+mem.write_int(0x1337, -i)
+p mem.read_int(0x1337)
+
+mem.write_float(0x1337, f)
+p mem.read_float(0x1337)
+
+mem.write_float(0x1337, -f)
+p mem.read_float(0x1337)
+
 
 mem2 = Fiddle::Pointer.malloc 64
 mem2.write_int(0, i)
