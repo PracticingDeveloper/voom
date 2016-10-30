@@ -1,50 +1,54 @@
 require "fiddle"
 
-class String
-  def alignment_pad
-    Fiddle::ALIGN_INT - (self.length % Fiddle::ALIGN_INT)
-  end
-
-  def aligned_length
-    self.length + self.alignment_pad
-  end
-end
-
 module Fiddle
   SIGNED_INT_PATTERN = "l<"
   DOUBLE_FLOAT_PATTERN = "d"
 
+  class Fiddle::BufferOverflow < IndexError
+  	attr_reader :address, :request
+    def initialize(address, request)
+      @address = address
+      @request = request
+      super("Buffer overflow: requested #{request} bytes at #{address.inspect}")
+    end
+  end
+
   class Pointer
-    def write_int(int)
-      self[0, Fiddle::SIZEOF_INT] = [int].pack(SIGNED_INT_PATTERN)
-      self + 0 + Fiddle::SIZEOF_INT
-    end
-
     def read_int
-      self[0, Fiddle::SIZEOF_INT].unpack(SIGNED_INT_PATTERN).first
-    end
-
-    def write_str(str)
-      address = write_int(str.length)
-      address[0, str.length] = str
-      if (misalign = str.alignment_pad) != 0
-        address[str.length, misalign] = 0.chr * misalign
-      end
-      address + str.length + misalign
-    end
-
-    def read_str
-      size = read_int
-      self[Fiddle::SIZEOF_INT, size]
-    end
-
-    def write_float(float)
-      self[0, Fiddle::SIZEOF_DOUBLE] = [float].pack(DOUBLE_FLOAT_PATTERN)
-      self + Fiddle::SIZEOF_DOUBLE
+      self[0, Fiddle::ALIGN_INT].unpack(SIGNED_INT_PATTERN).first
     end
 
     def read_float
-      self[0, Fiddle::SIZEOF_DOUBLE].unpack(DOUBLE_FLOAT_PATTERN).first
+      self[0, Fiddle::ALIGN_DOUBLE].unpack(DOUBLE_FLOAT_PATTERN).first
+    end
+
+    def read_str
+      self[Fiddle::ALIGN_INT, read_int]
+    end
+
+    def write_int(int)
+      raise BufferOverflow.new(self, Fiddle::ALIGN_INT) if Fiddle::ALIGN_INT > size
+      self[0, Fiddle::ALIGN_INT] = [int].pack(SIGNED_INT_PATTERN)
+      self + Fiddle::ALIGN_INT
+    end
+
+    def write_float(float)
+      raise BufferOverflow.new(self, Fiddle::ALIGN_DOUBLE) if Fiddle::ALIGN_DOUBLE > size
+      self[0, Fiddle::ALIGN_DOUBLE] = [float].pack(DOUBLE_FLOAT_PATTERN)
+      self + Fiddle::ALIGN_DOUBLE
+    end
+
+    def write_str(str)
+      l = str.length
+      address = write_int(l)
+      if (padding = l % Fiddle::ALIGN_INT) > 0
+        padding = Fiddle::ALIGN_INT - padding
+        str += 0.chr * padding
+        l = str.length
+      end
+  	  raise Fiddle::BufferOverflow.new(address, l) if l > address.size
+      address[0, l] = str
+  	  address + l
     end
   end
 end
