@@ -21,24 +21,24 @@ mem.write_float(0x1337, -f)
 p mem.read_float(0x1337)
 
 
-mem2 = Fiddle::Pointer.malloc 64
-mem2.write_int(0, i)
-p mem2.read_int(0)
+m = Fiddle::Pointer.malloc 64
+m.write_int(i)
+p m.read_int
 
-mem2.write_int(0, -i)
-p mem2.read_int(0)
+n = m.write_int(-i)
+p m.read_int
 
-mem2.write_str(4, s)
-p mem2.read_str(4)
+n.write_str(s)
+p n.read_str
 
-mem2.write_str(4, s[0, s.length - 1])
-p mem2.read_str(4)
+n.write_str(s[0, s.length - 1])
+p n.read_str
 
-mem2.write_str(4, s)
-p mem2.read_str(4)
+o = n.write_str(s)
+p n.read_str
 
-mem2.write_float(4 + s.aligned_length, f)
-p mem2.read_float(4 + s.aligned_length)
+q = o.write_float(f)
+p o.read_float
 
-mem2.write_float(4 + s.aligned_length + 8, -f)
-p mem2.read_float(4 + s.aligned_length + 8)
+q.write_float(-f)
+p q.read_float
