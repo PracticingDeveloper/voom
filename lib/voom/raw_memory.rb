@@ -2,7 +2,7 @@ require "fiddle"
 
 class String
   def alignment_pad
-    self.length % Fiddle::ALIGN_INT
+    Fiddle::ALIGN_INT - (self.length % Fiddle::ALIGN_INT)
   end
 
   def aligned_length
