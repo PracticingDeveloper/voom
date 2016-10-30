@@ -1,7 +1,6 @@
 module Voom
   class Memory
     INT_PATTERN = "l<"
-    WORD_SIZE   = 4
 
     def initialize
       @data = []
