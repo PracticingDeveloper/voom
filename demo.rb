@@ -23,7 +23,7 @@ p mem.read_float(0x1337)
 
 m = Fiddle::Pointer.malloc 64
 begin
-  m.write_str(0.chr * 59)
+	m.write_str(0.chr * 59)
 	m.write_str(0.chr * 60)
 	m.write_str(0.chr * 61)
 rescue Fiddle::BufferOverflow => e

@@ -27,30 +27,33 @@ module Fiddle
     end
 
     def write_int(int)
-      write([int].pack(SIGNED_INT_PATTERN), Fiddle::ALIGN_INT)
+      write([int].pack(SIGNED_INT_PATTERN))
     end
 
     def write_float(float)
-      write([float].pack(DOUBLE_FLOAT_PATTERN), Fiddle::ALIGN_DOUBLE)
+      write([float].pack(DOUBLE_FLOAT_PATTERN))
     end
 
     def write_str(str)
-      l = str.length
-      address = write_int(l)
-      if (padding = l % Fiddle::ALIGN_INT) > 0
-        padding = Fiddle::ALIGN_INT - padding
-        str += 0.chr * padding
-        l = str.length
-      end
-  	  raise Fiddle::BufferOverflow.new(address, l) if l > address.size
-      address[0, l] = str
-  	  address + l
+      write(Pointer::pstring(str))
     end
 
-	  private def write(str, aligned_length)
-      raise BufferOverflow.new(self, aligned_length) if aligned_length > size
-      self[0, aligned_length] = str
-      self + aligned_length
+	  private def write(str)
+      raise BufferOverflow.new(self, str.length) if str.length > size
+      self[0, str.length] = str
+      self + str.length
 	  end
+
+    def self.pstring(str)
+      Pointer::align([str.length].pack(SIGNED_INT_PATTERN) + str)
+    end
+
+    def self.align(str)
+      padding = str.length % Fiddle::ALIGN_INT
+      if padding > 0
+        padding = Fiddle::ALIGN_INT - padding
+      end
+      str += 0.chr * padding
+    end
   end
 end
