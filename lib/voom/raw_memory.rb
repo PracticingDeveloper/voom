@@ -27,15 +27,11 @@ module Fiddle
     end
 
     def write_int(int)
-      raise BufferOverflow.new(self, Fiddle::ALIGN_INT) if Fiddle::ALIGN_INT > size
-      self[0, Fiddle::ALIGN_INT] = [int].pack(SIGNED_INT_PATTERN)
-      self + Fiddle::ALIGN_INT
+      write([int].pack(SIGNED_INT_PATTERN), Fiddle::ALIGN_INT)
     end
 
     def write_float(float)
-      raise BufferOverflow.new(self, Fiddle::ALIGN_DOUBLE) if Fiddle::ALIGN_DOUBLE > size
-      self[0, Fiddle::ALIGN_DOUBLE] = [float].pack(DOUBLE_FLOAT_PATTERN)
-      self + Fiddle::ALIGN_DOUBLE
+      write([float].pack(DOUBLE_FLOAT_PATTERN), Fiddle::ALIGN_DOUBLE)
     end
 
     def write_str(str)
@@ -50,5 +46,11 @@ module Fiddle
       address[0, l] = str
   	  address + l
     end
+
+	  private def write(str, aligned_length)
+      raise BufferOverflow.new(self, aligned_length) if aligned_length > size
+      self[0, aligned_length] = str
+      self + aligned_length
+	  end
   end
 end
