@@ -28,12 +28,7 @@ module Fiddle
     end
 
 	  def write(value)
-      str = begin
-        Pointer.send(value.class.name.downcase, value)
-      rescue NoMethodError
-        Pointer::string(Marshal.dump(value))
-      end
-
+      str = Pointer::format(value)
       raise BufferOverflow.new(self, str.length) if str.length > size
       self[0, str.length] = str
       self + str.length
@@ -47,8 +42,16 @@ module Fiddle
       str += 0.chr * padding
     end
 
+    def self.format(value)
+      begin
+        send(value.class.name.downcase, value)
+      rescue NoMethodError
+        string(Marshal.dump(value))
+      end
+    end
+
     def self.string(str)
-      Pointer::align(Pointer::fixnum(str.length) + str)
+      align(fixnum(str.length) + str)
     end
 
     def self.fixnum(int)
