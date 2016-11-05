@@ -59,3 +59,4 @@ Value = Struct.new(:a, :b, :c)
 m.write(Value.new(i, f, f + i))
 p m.read :string
 p Marshal.load(m.read :string)
+p m.read :unmarshal

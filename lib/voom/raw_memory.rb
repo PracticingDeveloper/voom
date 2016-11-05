@@ -22,6 +22,8 @@ module Fiddle
         self[0, Fiddle::ALIGN_DOUBLE].unpack(FLOAT_PATTERN).first
       when :string
         self[Fiddle::ALIGN_INT, read]
+      when :unmarshal
+        Marshal.load(self[Fiddle::ALIGN_INT, read])
       end
     end
 
@@ -34,7 +36,7 @@ module Fiddle
       when String
         Pointer::pstring(value)
       else
-        Pointer::pstring(value.respond_to?(:to_mem) ? value.memory : Marshal.dump(value))
+        Pointer::pstring(Marshal.dump(value))
       end
 
       raise BufferOverflow.new(self, str.length) if str.length > size
