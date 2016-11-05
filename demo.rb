@@ -23,30 +23,39 @@ p mem.read_float(0x1337)
 
 m = Fiddle::Pointer.malloc 64
 begin
-	m.write_str(0.chr * 59)
-	m.write_str(0.chr * 60)
-	m.write_str(0.chr * 61)
+	m.write(0.chr * 59)
+	m.write(0.chr * 60)
+	m.write(0.chr * 61)
 rescue Fiddle::BufferOverflow => e
 	p e.message
 end
 
-m.write_int(i)
-p m.read_int
+m.write(i)
+p m.read
 
-n = m.write_int(-i)
-p m.read_int
+n = m.write(-i)
+p m.read
 
-n.write_str(s)
-p n.read_str
+n.write(s)
+p n.read :string
 
-n.write_str(s[0, s.length - 1])
-p n.read_str
+n.write(s[0, s.length - 1])
+p n.read :string
 
-o = n.write_str(s)
-p n.read_str
+o = n.write(s)
+p n.read :string
 
-q = o.write_float(f)
-p o.read_float
+q = o.write(f)
+p o.read :float
 
-q.write_float(-f)
-p q.read_float
+q.write(-f)
+p q.read :float
+
+m.write([f, i, f])
+p m.read :string
+p Marshal.load(m.read :string)
+
+Value = Struct.new(:a, :b, :c)
+m.write(Value.new(i, f, f + i))
+p m.read :string
+p Marshal.load(m.read :string)

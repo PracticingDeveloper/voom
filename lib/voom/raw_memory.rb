@@ -1,8 +1,8 @@
 require "fiddle"
 
 module Fiddle
-  SIGNED_INT_PATTERN = "l<"
-  DOUBLE_FLOAT_PATTERN = "d"
+  FIXNUM_PATTERN = "l<"
+  FLOAT_PATTERN = "d"
 
   class BufferOverflow < IndexError
   	attr_reader :address, :request
@@ -14,39 +14,33 @@ module Fiddle
   end
 
   class Pointer
-    def read_int
-      self[0, Fiddle::ALIGN_INT].unpack(SIGNED_INT_PATTERN).first
+    def read(type=:fixnum)
+      case type
+      when :fixnum
+        self[0, Fiddle::ALIGN_INT].unpack(FIXNUM_PATTERN).first
+      when :float
+        self[0, Fiddle::ALIGN_DOUBLE].unpack(FLOAT_PATTERN).first
+      when :string
+        self[Fiddle::ALIGN_INT, read]
+      end
     end
 
-    def read_float
-      self[0, Fiddle::ALIGN_DOUBLE].unpack(DOUBLE_FLOAT_PATTERN).first
-    end
+	  def write(value)
+      str = case value
+      when Fixnum
+        Pointer::fixnum(value)
+      when Float
+        Pointer::float(value)
+      when String
+        Pointer::pstring(value)
+      else
+        Pointer::pstring(value.respond_to?(:to_mem) ? value.memory : Marshal.dump(value))
+      end
 
-    def read_str
-      self[Fiddle::ALIGN_INT, read_int]
-    end
-
-    def write_int(int)
-      write([int].pack(SIGNED_INT_PATTERN))
-    end
-
-    def write_float(float)
-      write([float].pack(DOUBLE_FLOAT_PATTERN))
-    end
-
-    def write_str(str)
-      write(Pointer::pstring(str))
-    end
-
-	  private def write(str)
       raise BufferOverflow.new(self, str.length) if str.length > size
       self[0, str.length] = str
       self + str.length
 	  end
-
-    def self.pstring(str)
-      Pointer::align([str.length].pack(SIGNED_INT_PATTERN) + str)
-    end
 
     def self.align(str)
       padding = str.length % Fiddle::ALIGN_INT
@@ -54,6 +48,18 @@ module Fiddle
         padding = Fiddle::ALIGN_INT - padding
       end
       str += 0.chr * padding
+    end
+
+    def self.pstring(str)
+      Pointer::align(Pointer::fixnum(str.length) + str)
+    end
+
+    def self.fixnum(int)
+      [int].pack(FIXNUM_PATTERN)
+    end
+
+    def self.float(float)
+      [float].pack(FLOAT_PATTERN)
     end
   end
 end
