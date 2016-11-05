@@ -28,15 +28,10 @@ module Fiddle
     end
 
 	  def write(value)
-      str = case value
-      when Fixnum
-        Pointer::fixnum(value)
-      when Float
-        Pointer::float(value)
-      when String
-        Pointer::pstring(value)
-      else
-        Pointer::pstring(Marshal.dump(value))
+      str = begin
+        Pointer.send(value.class.name.downcase, value)
+      rescue NoMethodError
+        Pointer::string(Marshal.dump(value))
       end
 
       raise BufferOverflow.new(self, str.length) if str.length > size
@@ -52,7 +47,7 @@ module Fiddle
       str += 0.chr * padding
     end
 
-    def self.pstring(str)
+    def self.string(str)
       Pointer::align(Pointer::fixnum(str.length) + str)
     end
 
