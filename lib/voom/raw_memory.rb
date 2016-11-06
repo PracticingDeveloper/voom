@@ -1,9 +1,15 @@
 require "fiddle"
 
+Fixnum::SIZE = 1.size
+
 module Fiddle
-  FIXNUM_PATTERN = "l<"
+  FIXNUM_PATTERN = case Fixnum::SIZE
+  when 2 then "s"
+  when 4 then "l"
+  when 8 then "q"
+  end + "!"
+  POINTER_PATTERN = FIXNUM_PATTERN
   FLOAT_PATTERN = "d"
-  POINTER_PATTERN = "q!"
 
   class BufferOverflow < IndexError
   	attr_reader :address, :request
@@ -18,15 +24,15 @@ module Fiddle
     def read(type=:fixnum)
       case type
       when :fixnum
-        self[0, Fiddle::ALIGN_INT].unpack(FIXNUM_PATTERN).first
+        self[0, Fixnum::SIZE].unpack(FIXNUM_PATTERN).first
       when :float
         self[0, Fiddle::ALIGN_DOUBLE].unpack(FLOAT_PATTERN).first
       when :pointer
-        Fiddle::Pointer.new(self[0, Fiddle::ALIGN_LONG_LONG].unpack(POINTER_PATTERN).first)
+        Fiddle::Pointer.new(self[0, Fixnum::SIZE].unpack(POINTER_PATTERN).first)
       when :string
-        self[Fiddle::ALIGN_INT, read]
+        self[Fixnum::SIZE, read]
       when :unmarshal
-        Marshal.load(self[Fiddle::ALIGN_INT, read])
+        Marshal.load(self[Fixnum::SIZE, read])
       end
     end
 
@@ -38,9 +44,9 @@ module Fiddle
 	  end
 
     def self.align(str)
-      padding = str.length % Fiddle::ALIGN_INT
+      padding = str.length % Fixnum::SIZE
       if padding > 0
-        padding = Fiddle::ALIGN_INT - padding
+        padding = Fixnum::SIZE - padding
       end
       str += 0.chr * padding
     end
