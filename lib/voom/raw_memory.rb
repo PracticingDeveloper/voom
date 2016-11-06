@@ -3,6 +3,7 @@ require "fiddle"
 module Fiddle
   FIXNUM_PATTERN = "l<"
   FLOAT_PATTERN = "d"
+  POINTER_PATTERN = "q!"
 
   class BufferOverflow < IndexError
   	attr_reader :address, :request
@@ -20,6 +21,8 @@ module Fiddle
         self[0, Fiddle::ALIGN_INT].unpack(FIXNUM_PATTERN).first
       when :float
         self[0, Fiddle::ALIGN_DOUBLE].unpack(FLOAT_PATTERN).first
+      when :pointer
+        Fiddle::Pointer.new(self[0, Fiddle::ALIGN_LONG_LONG].unpack(POINTER_PATTERN).first)
       when :string
         self[Fiddle::ALIGN_INT, read]
       when :unmarshal
@@ -44,14 +47,14 @@ module Fiddle
 
     def self.format(value)
       begin
-        send(value.class.name.downcase, value)
+        send(value.class.name.downcase.gsub("::", "__"), value)
       rescue NoMethodError
         string(Marshal.dump(value))
       end
     end
 
     def self.string(str)
-      align(fixnum(str.length) + str)
+      fixnum(str.length) + align(str)
     end
 
     def self.fixnum(int)
@@ -60,6 +63,10 @@ module Fiddle
 
     def self.float(float)
       [float].pack(FLOAT_PATTERN)
+    end
+
+    def self.fiddle__pointer(ptr)
+      [ptr].pack(POINTER_PATTERN)
     end
   end
 end
