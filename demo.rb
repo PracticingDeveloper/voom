@@ -12,10 +12,7 @@ mem.write_int(0x1234, 0x1337)
 p mem.read_ptr(0xbeef, :str)
 
 mem.write_ptr(0xbeef, :str, "A new string")
-
 p mem.read_ptr(0xbeef, :str)
-p mem.read_ptr(0x1234, :str)
-
 p mem.read_str(0x1337)
 
 
