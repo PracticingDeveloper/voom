@@ -35,8 +35,16 @@ module Voom
       retrieve(address, 2 * WORD_SIZE).pack("C*").unpack(FLOAT_PATTERN).first
     end
 
+    def read_ptr(address, type)
+      send("read_#{type}", read_int(address))
+    end
+
+    def write_ptr(address, type, value)
+      send("write_#{type}", read_int(address), value)
+    end
+
     def store(address, bytes)
-      @data.insert(address, *bytes)
+      @data[address, bytes.length] = bytes
     end
 
     def retrieve(address, bytes)

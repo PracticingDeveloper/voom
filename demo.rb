@@ -2,10 +2,26 @@
 require_relative "lib/voom"
 
 s = "Hello, Terrible Memory Bank!"
-i = 4193
-f = 17.00091
 
 mem = Voom::Memory.new
+
+mem.write_str(0x1337, s)
+mem.write_int(0xbeef, 0x1337)
+mem.write_int(0x1234, 0x1337)
+
+p mem.read_ptr(0xbeef, :str)
+
+mem.write_ptr(0xbeef, :str, "A new string")
+
+p mem.read_ptr(0xbeef, :str)
+p mem.read_ptr(0x1234, :str)
+
+p mem.read_str(0x1337)
+
+
+__END__
+i = 4193
+f = 17.00091
 mem.write_str(0x1337, s)
 p mem.read_str(0x1337)
 
