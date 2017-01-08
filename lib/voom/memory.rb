@@ -14,7 +14,7 @@ module Voom
     end
 
     def read_int(address)
-      retrieve(address, 4).pack("C*").unpack(INT_PATTERN).first
+      retrieve(address, WORD_SIZE).pack("C*").unpack(INT_PATTERN).first
     end
 
     def write_str(address, str)

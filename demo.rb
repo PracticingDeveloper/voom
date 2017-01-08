@@ -1,9 +1,41 @@
 #!/usr/bin/env ruby
 require_relative "lib/voom"
 
-s = "Hello, Terrible Memory Bank!"
-
 mem = Voom::Memory.new
+
+mem.write_int(0x1000, 1)
+mem.write_int(0x1004, 2)
+mem.write_int(0x1008, 4)
+mem.write_int(0x100c, 8)
+
+# these are our pointers
+mem.write_int(0x2000, 0x1000)
+mem.write_int(0x2004, 0x1004)
+mem.write_int(0x2008, 0x1008)
+mem.write_int(0x200c, 0x100c)
+
+
+list = Voom::List.new(:int, mem, 0x2000)
+
+node = list
+
+[0x2004, 0x2008, 0x200c].each do |e|
+  node.link(e)
+
+  node = node.next
+end
+
+# just to show mutability
+mem.write_int(0x100c, 32)
+
+p list.data
+p list.next.data
+p list.next.next.data
+p list.next.next.next.data
+
+
+__END__
+s = "Hello, Terrible Memory Bank!"
 
 mem.write_str(0x1337, s)
 mem.write_int(0xbeef, 0x1337)
@@ -15,8 +47,6 @@ mem.write_ptr(0xbeef, :str, "A new string")
 p mem.read_ptr(0xbeef, :str)
 p mem.read_str(0x1337)
 
-
-__END__
 i = 4193
 f = 17.00091
 mem.write_str(0x1337, s)
