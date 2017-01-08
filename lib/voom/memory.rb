@@ -1,3 +1,5 @@
+require_relative "list"
+
 module Voom
   WORD_SIZE = 4
 
@@ -41,6 +43,24 @@ module Voom
 
     def write_ptr(address, type, value)
       send("write_#{type}", read_int(address), value)
+    end
+
+    def read_list(address, type)
+      Voom::List.new(type, self, address)
+    end
+
+    def write_list(address, type, data_pointers)
+      offset = 0
+
+      data_pointers.each do |e|
+        send("write_#{type}", address + offset, e)
+        offset += Voom::WORD_SIZE
+
+        write_int(address + offset, address + offset + Voom::WORD_SIZE)
+        offset += Voom::WORD_SIZE
+      end
+      
+      write_int(address + offset - Voom::WORD_SIZE, 0)
     end
 
     def store(address, bytes)

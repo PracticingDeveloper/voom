@@ -1,26 +1,31 @@
 module Voom
-  #TODO: Lists should be read directly from memory, like other primitive types
-  # and then wrapped in a higher level object. I.e. this is what will e
-  # returned by mem.read_list(address)
-  
   class List
-    def initialize(type, memory, data_ptr)
-      @type      = type
-      @memory    = memory
-      @data_ptr  = data_ptr
-      @next      = nil
+    include Enumerable
+
+    def initialize(type, memory, addr)
+      @type        = type
+      @memory      = memory
+      
+      @data        = memory.read_ptr(addr, type)
+      @next_addr   = memory.read_int(addr + Voom::WORD_SIZE)
     end
 
-    def data  
-      @memory.send(:read_ptr, @data_ptr, @type)
-    end
+    attr_reader :data
 
     def next
-      @next
+      return nil if @next_addr.zero? 
+
+      List.new(@type, @memory, @next_addr)
     end
 
-    def link(next_ptr)
-      @next = List.new(@type, @memory, next_ptr)
+    def each
+      node = self
+
+      while node
+        yield node.data
+        
+        node = node.next
+      end
     end
   end
 end
