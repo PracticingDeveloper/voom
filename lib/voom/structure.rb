@@ -23,6 +23,10 @@ module Voom
           @mem.read_ptr(@field_addrs[k], t)
         end
 
+        define_singleton_method("#{k}=") do |v|
+          @mem.write_ptr(@field_addrs[k],t, v)
+        end
+
         pos += Voom::WORD_SIZE
       end
 

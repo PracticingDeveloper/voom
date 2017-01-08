@@ -17,6 +17,7 @@ module Voom
 
       @data.field_names.each do |e|
         define_singleton_method(e) { @data.send(e) }
+        define_singleton_method("#{e}=") { |v| @data.send("#{e}=", v) }
       end
     end
   end

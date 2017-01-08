@@ -18,17 +18,22 @@ mem.write_int(0x3000, 0x1000)
 mem.write_int(0x3004, 0x2000)
 
 item = Item.new(mem, 0x3000)
+
 p item.name
 p item.price
 
-mem.write_float(0x2000, 0.79)
-p item.name
+item.price = 0.79
 p item.price
 
-mem.write_str(0x1000, "garden fresh eggs")
-p item.name
-p item.price
+p mem.read_float(0x2000)
 
+item.name = "fresh garden eggs"
+p item.name
+
+p mem.read_str(0x1000)
+mem.write_str(0x1000, "eggz")
+
+p item.name
 __END__
 
 mem.write_int(0x1000, 1)
