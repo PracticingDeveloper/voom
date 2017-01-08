@@ -1,7 +1,12 @@
 require_relative "list"
+require "ostruct" # FIXME: remove
 
 module Voom
   WORD_SIZE = 4
+  NULL = 0
+
+  # structure consists of known width primitives
+  # pointers, floats, integers to begin with.
 
   class Memory
     INT_PATTERN = "l<"
@@ -9,6 +14,10 @@ module Voom
 
     def initialize
       @data = []
+    end
+
+    def read_struct(address, type)
+      Voom::Structure.new(self, address, type)
     end
 
     def write_int(address, int)

@@ -1,9 +1,35 @@
 #!/usr/bin/env ruby
 require_relative "lib/voom"
 
+class Item < Voom::Type
+  str    :name
+  float  :price
+end
+
 mem = Voom::Memory.new
 
-mem.write_int(0x0000, 0)
+mem.write_int(0x0000, Voom::NULL) # NULL POINTER
+
+mem.write_str(0x1000, "eggs")
+
+mem.write_float(0x2000, 0.19)
+
+mem.write_int(0x3000, 0x1000)
+mem.write_int(0x3004, 0x2000)
+
+item = Item.new(mem, 0x3000)
+p item.name
+p item.price
+
+mem.write_float(0x2000, 0.79)
+p item.name
+p item.price
+
+mem.write_str(0x1000, "garden fresh eggs")
+p item.name
+p item.price
+
+__END__
 
 mem.write_int(0x1000, 1)
 mem.write_int(0x1004, 2)
@@ -19,7 +45,6 @@ mem.write_int(0x100c, 32)
 
 p list.reduce(:+) #=> 1 + 2 + 4 + 32 = 39
 
-__END__
 s = "Hello, Terrible Memory Bank!"
 
 mem.write_str(0x1337, s)

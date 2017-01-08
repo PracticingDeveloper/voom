@@ -5,17 +5,17 @@ module Voom
     def initialize(type, memory, addr)
       @type        = type
       @memory      = memory
-      
-      @data        = memory.read_ptr(addr, type)
-      @next_addr   = memory.read_int(addr + Voom::WORD_SIZE)
+      @addr        = addr
     end
 
-    attr_reader :data
+    def data
+      @memory.read_ptr(@addr, @type)
+    end
 
     def next
-      return nil if @next_addr.zero? 
+      return nil if next_addr.zero? 
 
-      List.new(@type, @memory, @next_addr)
+      List.new(@type, @memory, next_addr)
     end
 
     def each
@@ -26,6 +26,12 @@ module Voom
         
         node = node.next
       end
+    end
+
+    private
+
+    def next_addr
+      @memory.read_int(@addr + Voom::WORD_SIZE)
     end
   end
 end
