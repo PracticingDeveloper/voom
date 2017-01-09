@@ -7,32 +7,24 @@ class Item < Voom::Type
 end
 
 mem = Voom::Memory.new
+w = Voom::MemoryWriter.new(mem)
 
-mem.write_int(0x0000, Voom::NULL) # NULL POINTER
+w.seek(0x0000)
+w.write_int(Voom::NULL)
 
-mem.write_str(0x1000, "eggs")
+item_name  = w.write_str("eggs")
 
-mem.write_float(0x2000, 0.19)
+w.seek(item_name + 128) ## Without this line memory corrupted later :-P
 
-mem.write_int(0x3000, 0x1000)
-mem.write_int(0x3004, 0x2000)
+item_price = w.write_float(0.19)
 
-item = Item.new(mem, 0x3000)
+item_ref = w.write_int(item_name)
+w.write_int(item_price)
+
+item = Item.new(mem, item_ref)
 
 p item.name
-p item.price
-
-item.price = 0.79
-p item.price
-
-p mem.read_float(0x2000)
-
 item.name = "fresh garden eggs"
-p item.name
-
-p mem.read_str(0x1000)
-mem.write_str(0x1000, "eggz")
-
 p item.name
 __END__
 

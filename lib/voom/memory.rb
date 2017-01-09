@@ -28,7 +28,7 @@ module Voom
       retrieve(address, WORD_SIZE).pack("C*").unpack(INT_PATTERN).first
     end
 
-    def write_str(address, str)
+    def write_str(address, str)      
       write_int(address, str.length)
       store(address + WORD_SIZE, pad_byte_array(str.bytes))
     end
@@ -78,6 +78,10 @@ module Voom
 
     def retrieve(address, bytes)
       @data.slice(address, bytes)
+    end
+
+    def inspect
+      @data.each_slice(16).map { |e| e.map { |x| '%.2x' % x }.join(" ") }.join("\n")
     end
 
     private
