@@ -13,7 +13,7 @@ class ItemInCart < Voom::Type
 end
 
 class ShoppingCart < Voom::Type
-  list :data, ItemInCart # FIXME: NEEDS IMPLEMENTATION.
+  list :data, ItemInCart
 
   include Enumerable
 
