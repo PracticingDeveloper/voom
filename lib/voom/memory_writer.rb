@@ -5,6 +5,8 @@ module Voom
       @pos = 0
     end
 
+    attr_reader :pos
+
     def write_int(value)
       @mem.write_int(@pos, value)
 

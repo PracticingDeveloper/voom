@@ -47,11 +47,21 @@ module Voom
     end
 
     def read_ptr(address, type)
-      send("read_#{type}", read_int(address))
+      if type.kind_of?(Class) && type.ancestors.include?(Voom::Type)
+        type.new(self, read_int(address))
+      elsif type.kind_of?(Voom::ListReference)
+        type.new(self, read_int(address))
+      else
+        send("read_#{type}", read_int(address))
+      end
     end
 
     def write_ptr(address, type, value)
-      send("write_#{type}", read_int(address), value)
+      if type.kind_of?(Class)
+        raise NotImplementedError, "TODO"
+      else
+        send("write_#{type}", read_int(address), value)
+      end
     end
 
     def read_list(address, type)

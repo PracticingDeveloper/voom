@@ -1,4 +1,14 @@
 module Voom
+  class ListReference
+    def initialize(type)
+      @type = type
+    end
+
+    def new(memory, addr)
+      List.new(@type, memory, addr)
+    end
+  end
+
   class List
     include Enumerable
 

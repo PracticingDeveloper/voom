@@ -12,7 +12,21 @@ module Voom
       fields << [name, :float]
     end
 
+    def self.int(name)
+      fields << [name, :int]
+    end
+
+    def self.reference(name, target_class)
+      fields << [name, target_class]
+    end
+
+    def self.list(name, target_class)
+      fields << [name, ListReference.new(target_class)]
+    end
+
     def initialize(mem, addr)
+      @mem  = mem
+
       @data = mem.read_struct(addr, self.class.fields)
 
       @data.field_names.each do |e|
