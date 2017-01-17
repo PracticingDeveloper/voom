@@ -1,6 +1,7 @@
 require "fiddle"
 
 Fixnum::SIZE = 1.size
+Float::SIZE = Fiddle::ALIGN_DOUBLE
 
 module Fiddle
   FIXNUM_PATTERN = case Fixnum::SIZE
@@ -21,6 +22,8 @@ module Fiddle
   end
 
   class Pointer
+    NIL = Pointer.new(0)
+
     def read(type=:fixnum)
       case type
       when :fixnum
@@ -31,17 +34,29 @@ module Fiddle
         Fiddle::Pointer.new(self[0, Fixnum::SIZE].unpack(POINTER_PATTERN).first)
       when :string
         self[Fixnum::SIZE, read]
+      when Array
+
+      when Struct
+
       when :unmarshal
         Marshal.load(self[Fixnum::SIZE, read])
       end
     end
 
-	  def write(value)
+	def write(value)
       str = Pointer::format(value)
       raise BufferOverflow.new(self, str.length) if str.length > size
       self[0, str.length] = str
       self + str.length
-	  end
+	end
+
+    def self.aligned_length(str)
+      padding = str.length % Fixnum::SIZE
+      if padding > 0
+        padding = Fixnum::SIZE - padding
+      end
+      padding + str.length
+    end
 
     def self.align(str)
       padding = str.length % Fixnum::SIZE
@@ -69,6 +84,14 @@ module Fiddle
 
     def self.float(float)
       [float].pack(FLOAT_PATTERN)
+    end
+
+    def array(array)
+      fixnum(str.length) + array.collect { |v| format(v) }.join
+    end
+
+    def self.struct(struct)
+      write(struct.values)
     end
 
     def self.fiddle__pointer(ptr)
