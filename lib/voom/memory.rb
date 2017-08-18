@@ -60,7 +60,7 @@ module Voom
       if type.kind_of?(Class)
         raise NotImplementedError, "TODO"
       else
-        send("write_#{type}", read_int(address), value)
+        send("write_#{type}", read_ptr(address, :int), value)
       end
     end
 
@@ -91,7 +91,7 @@ module Voom
     end
 
     def inspect
-      @data.each_slice(16).map { |e| e.map { |x| '%.2x' % x }.join(" ") }.join("\n")
+      @data.each_slice(16).map.with_index { |e,i| ([('%.4x' % (i*16)) + ":" ]  + e.each_slice(4).map { |x| x.map { |z| '%.2x' % z.to_i } + [" | "] }).join(" ") }.join("\n")
     end
 
     private

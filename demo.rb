@@ -9,11 +9,11 @@ end
 class ItemInCart < Voom::Type
   int :quantity
 
-  reference(:item, Item)
+  reference :item, Item
 end
 
 class ShoppingCart < Voom::Type
-  list :data, ItemInCart # FIXME: NEEDS IMPLEMENTATION.
+  list :data, ItemInCart
 
   include Enumerable
 
@@ -27,36 +27,42 @@ class ShoppingCart < Voom::Type
     "\n\nTOTAL: " + 
     ('%.2f' % reduce(0) { |s,e| s + (e.item.price * e.quantity)}) 
   end
-end
-
-mem = Voom::Memory.new
-@w = Voom::MemoryWriter.new(mem)
-
-@w.seek(0x0000)
-@w.write_int(Voom::NULL)
+end 
 
 def create_item(i_name, i_price)
   raise if i_name.length > 128
 
-  item_name  = @w.write_str(i_name)
-  @w.seek(item_name + 128)
+  start_pos = @w.v_pos
 
-  item_price = @w.write_float(i_price)
+  item_ref = @w.write_str!(i_name)
+  @w.seek(start_pos + 128)
 
-  item_ref = @w.write_int(item_name)
-  @w.write_int(item_price)
+  @w.write_float!(i_price)
 
   item_ref
 end
 
+
+# quantity | (ptr to quantity | ptr to item)  
+# reti
+#
+# FIXME: Figure out a way to split out the values (quantity and item ref, from the returned pointer) 
+#
 def add_to_cart(item_ref, i_quantity)
-  quantity = @w.write_int(i_quantity) 
-  
-  item_in_cart = @w.write_int(quantity)
-  @w.write_int(item_ref)
+  quantity = @w.write_int(i_quantity)
+ 
+  item_in_cart = @w.write_ptr(quantity)
+  @w.write_ptr(item_ref)
 
   item_in_cart
 end
+
+
+mem = Voom::Memory.new
+@w = Voom::FancyMemoryWriter.new(mem)
+
+@w.write_ptr(@w.write_int(Voom::NULL))
+
 
 i1 = add_to_cart(create_item("eggs", 0.19), 12)
 i2 = add_to_cart(create_item("bananas", 0.1), 5)
@@ -77,3 +83,5 @@ list_ref = @w.write_int(list)
 cart = ShoppingCart.new(mem, list_ref)
 
 puts cart
+
+p mem
