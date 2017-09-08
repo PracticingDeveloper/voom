@@ -91,7 +91,11 @@ module Voom
     end
 
     def inspect
-      @data.each_slice(16).map.with_index { |e,i| ([('%.4x' % (i*16)) + ":" ]  + e.each_slice(4).map { |x| x.map { |z| '%.2x' % z.to_i } + [" | "] }).join(" ") }.join("\n")
+      @data.each_slice(16).map.with_index { |e,i| 
+        next if e.compact.empty?
+
+        ([('%.4x' % (i*16)) + ":" ]  + e.each_slice(4).map { |x| x.map { |z| '%.2x' % z.to_i } + [" | "] }).join(" ") 
+      }.compact.join("\n")
     end
 
     private
