@@ -6,8 +6,6 @@ module Voom
       @mem = mem
       @r_pos = 0
       @v_pos = VALUE_SPACE_OFFSET
-
-      @ref
     end
 
     attr_reader :v_pos
