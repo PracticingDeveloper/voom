@@ -14,6 +14,10 @@ module Voom
       v_pos
     end
 
+    def read_struct(*a, &b)
+      @mem.read_struct(*a, &b)
+    end
+
     def write_ptr(value)
       @mem.write_int(@r_pos, value)
 

@@ -35,7 +35,7 @@ def create_item(i_name, i_price)
   start_pos = @w.v_pos
 
   item_ref = @w.write_str!(i_name)
-  @w.seek(start_pos + 128)
+  @w.seek(start_pos + 128) # FIXME: WE PROBABLY WANT TO JUST CREATE NEW STRINGS (Without GC rather than dealing w. fixed width strings)
 
   @w.write_float!(i_price)
 
@@ -81,6 +81,8 @@ list = @w.write_int(i1)
 
 list_ref = @w.write_int(list)
 cart = ShoppingCart.new(mem, list_ref)
+
+cart.each { |e| e.item.name = e.item.name.upcase; }
 
 puts cart
 

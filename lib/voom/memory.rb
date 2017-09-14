@@ -60,7 +60,7 @@ module Voom
       if type.kind_of?(Class)
         raise NotImplementedError, "TODO"
       else
-        send("write_#{type}", read_ptr(address, :int), value)
+        send("write_#{type}", read_int(address), value)
       end
     end
 
