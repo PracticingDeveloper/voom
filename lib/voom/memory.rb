@@ -16,10 +16,6 @@ module Voom
       @data = []
     end
 
-    def read_struct(address, type)
-      Voom::Structure.new(self, address, type)
-    end
-
     def write_int(address, int)
       store(address, [int].pack(INT_PATTERN).bytes)
     end
@@ -47,11 +43,7 @@ module Voom
     end
 
     def read_ptr(address, type)
-      if (type.kind_of?(Class) && type.ancestors.include?(Voom::Type)) || type.kind_of?(Voom::ListReference)
-        type.new(self, read_int(address))
-      else
-        send("read_#{type}", read_int(address))
-      end
+      send("read_#{type}", read_int(address))
     end
 
     def write_ptr(address, type, value)
@@ -89,7 +81,7 @@ module Voom
     end
 
     def inspect
-      @data.each_slice(16).map.with_index { |e,i| 
+      pad_byte_array(@data).each_slice(16).map.with_index { |e,i| 
         next if e.compact.empty?
 
         ([('%.4x' % (i*16)) + ":" ]  + e.each_slice(4).map { |x| x.map { |z| '%.2x' % z.to_i } + [" | "] }).join(" ") 

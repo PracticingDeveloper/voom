@@ -40,40 +40,63 @@ def create_item(i_name, i_price)
   item_ref
 end
 
-def add_to_cart(item_ref, i_quantity)
+def quantified_item(item_ref, i_quantity)
   added_ref = @w.write_int!(i_quantity)
   @w.write_ptr(item_ref)
 
   added_ref
 end
 
+def create_list(*refs)
+  first, *middle, last = refs
+
+  head_ref = @w.write_int!(first)
+
+  (middle + Array(last)).each do |e|
+    @w.write_int(@w.pos + Voom::WORD_SIZE)
+    @w.write_int(e)
+  end
+
+  @w.write_int(Voom::NULL)  
+
+  head_ref
+end
 
 mem = Voom::Memory.new
-@w = Voom::FancyMemoryWriter.new(mem)
 
+@w = Voom::MemoryWriter.new(mem)
 @w.write_ptr(@w.write_int(Voom::NULL))
 
 eggs    = create_item("eggs", 0.19)
 milk    = create_item("milk", 1.5)
 bananas = create_item("bananas", 0.1)
+apples  = create_item("apples", 0.75)
 
-i1 = add_to_cart(eggs, 12)
-i2 = add_to_cart(bananas, 5)
-i3 = add_to_cart(milk, 3)
+eleanor_cart = ShoppingCart.new(@w,
+  create_list(
+    quantified_item(eggs, 12),
+    quantified_item(bananas, 5),
+    quantified_item(apples, 4))
+)
 
-list = @w.write_int(i1)
+gregory_cart = ShoppingCart.new(@w,
+  create_list(
+    quantified_item(eggs, 6),
+    quantified_item(milk, 3),
+    quantified_item(apples, 4))
+)
 
-@w.write_int(@w.pos + Voom::WORD_SIZE)
-@w.write_int(i2)
+gregory_cart.first.item.price = 2.5 # Make eggs much more expensive!
+gregory_cart.first.quantity = 10 # Change the amount of eggs in Gregory's Cart
 
-@w.write_int(@w.pos + Voom::WORD_SIZE)
-@w.write_int(i3)
 
-@w.write_int(Voom::NULL)
+puts "<ELEANOR>\n\n"
+puts eleanor_cart
 
-list_ref = @w.write_int(list)
-cart = ShoppingCart.new(@w, list_ref)
+puts "........................................."
 
-puts cart
+puts "<GREGORY>\n\n"
+puts gregory_cart
+
 gets
 p mem

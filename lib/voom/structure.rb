@@ -24,7 +24,9 @@ module Voom
         end
 
         define_singleton_method("#{k}=") do |v|
-          raise NotImplementedError
+          new_ref = @mem.send("write_#{t}", v)
+
+          @mem.internal.write_int(@field_addrs[k], new_ref)
         end
 
         pos += Voom::WORD_SIZE
