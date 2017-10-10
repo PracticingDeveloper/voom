@@ -24,6 +24,10 @@ module Voom
         end
 
         define_singleton_method("#{k}=") do |v|
+          unless [:int, :str, :float].include?(t)
+            raise NotImplementedError
+          end
+
           new_ref = @mem.send("write_#{t}", v)
 
           @mem.internal.write_int(@field_addrs[k], new_ref)
