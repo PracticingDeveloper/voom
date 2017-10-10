@@ -24,7 +24,7 @@ module Voom
         end
 
         define_singleton_method("#{k}=") do |v|
-          @mem.write_ptr(@field_addrs[k],t, v)
+          raise NotImplementedError
         end
 
         pos += Voom::WORD_SIZE

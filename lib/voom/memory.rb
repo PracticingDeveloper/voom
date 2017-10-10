@@ -47,9 +47,7 @@ module Voom
     end
 
     def read_ptr(address, type)
-      if type.kind_of?(Class) && type.ancestors.include?(Voom::Type)
-        type.new(self, read_int(address))
-      elsif type.kind_of?(Voom::ListReference)
+      if (type.kind_of?(Class) && type.ancestors.include?(Voom::Type)) || type.kind_of?(Voom::ListReference)
         type.new(self, read_int(address))
       else
         send("read_#{type}", read_int(address))

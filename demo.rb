@@ -17,11 +17,13 @@ class ShoppingCart < Voom::Type
 
   include Enumerable
 
-  def each
-    data.each { |e| yield e }
+  def each(&b)
+    data.each(&b)
   end
 
   def to_s
+    "In your cart: \n\n" + 
+
     map { |e| "- #{e.item.name} @ #{e.item.price} x #{e.quantity}" }.join("\n") +
 
     "\n\nTOTAL: " + 
@@ -30,12 +32,7 @@ class ShoppingCart < Voom::Type
 end 
 
 def create_item(i_name, i_price)
-  raise if i_name.length > 128
-
-  start_pos = @w.v_pos
-
   item_ref = @w.write_str!(i_name)
-  @w.seek(start_pos + 128) # FIXME: WE PROBABLY WANT TO JUST CREATE NEW STRINGS (Without GC rather than dealing w. fixed width strings)
 
   @w.write_float!(i_price)
 
@@ -80,10 +77,8 @@ list = @w.write_int(i1)
 @w.write_int(Voom::NULL)
 
 list_ref = @w.write_int(list)
-cart = ShoppingCart.new(mem, list_ref)
-
-cart.each { |e| e.item.name = e.item.name.upcase; }
+cart = ShoppingCart.new(@w, list_ref)
 
 puts cart
-
+gets
 p mem
