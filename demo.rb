@@ -6,6 +6,7 @@ class Item < Voom::Type
   float  :price
 end
 
+# FIXME: Rename ItemWithQuantity?
 class ItemInCart < Voom::Type
   int :quantity
 
@@ -39,19 +40,11 @@ def create_item(i_name, i_price)
   item_ref
 end
 
-
-# quantity | (ptr to quantity | ptr to item)  
-# reti
-#
-# FIXME: Figure out a way to split out the values (quantity and item ref, from the returned pointer) 
-#
 def add_to_cart(item_ref, i_quantity)
-  quantity = @w.write_int(i_quantity)
- 
-  item_in_cart = @w.write_ptr(quantity)
+  added_ref = @w.write_int!(i_quantity)
   @w.write_ptr(item_ref)
 
-  item_in_cart
+  added_ref
 end
 
 
@@ -60,13 +53,15 @@ mem = Voom::Memory.new
 
 @w.write_ptr(@w.write_int(Voom::NULL))
 
+eggs    = create_item("eggs", 0.19)
+milk    = create_item("milk", 1.5)
+bananas = create_item("bananas", 0.1)
 
-i1 = add_to_cart(create_item("eggs", 0.19), 12)
-i2 = add_to_cart(create_item("bananas", 0.1), 5)
-i3 = add_to_cart(create_item("milk", 1.5), 3)
+i1 = add_to_cart(eggs, 12)
+i2 = add_to_cart(bananas, 5)
+i3 = add_to_cart(milk, 3)
 
 list = @w.write_int(i1)
-
 
 @w.write_int(@w.pos + Voom::WORD_SIZE)
 @w.write_int(i2)

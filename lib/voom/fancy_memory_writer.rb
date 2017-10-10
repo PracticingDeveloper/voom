@@ -43,7 +43,7 @@ module Voom
     def write_int!(value)
       addr = write_int(value)
 
-      write_ptr(value)
+      write_ptr(addr)
     end
 
     def write_str!(value)
