@@ -22,6 +22,20 @@ module Voom
       Voom::Structure.new(self, address, type)
     end
 
+    def write_struct(type, values)
+      pointers = []
+
+      type.fields.each do |n,t|
+        if (t.kind_of?(Class) && t.ancestors.include?(Voom::Type)) || t.kind_of?(Voom::ListReference)
+          pointers << write_ptr(values.fetch(n))
+        else
+          pointers << send("write_#{t}!", values.fetch(n))
+        end
+      end
+
+      pointers.first
+    end
+
     def write_ptr(value)
       @mem.write_int(@r_pos, value)
 

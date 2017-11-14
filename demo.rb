@@ -33,18 +33,11 @@ class ShoppingCart < Voom::Type
 end 
 
 def create_item(i_name, i_price)
-  item_ref = @w.write_str!(i_name)
-
-  @w.write_float!(i_price)
-
-  item_ref
+  @w.write_struct(Item, :name => i_name, :price => i_price)
 end
 
 def quantified_item(item_ref, i_quantity)
-  added_ref = @w.write_int!(i_quantity)
-  @w.write_ptr(item_ref)
-
-  added_ref
+  @w.write_struct(ItemInCart, :item => item_ref, :quantity => i_quantity)
 end
 
 def create_list(*refs)
@@ -65,6 +58,7 @@ end
 mem = Voom::Memory.new
 
 @w = Voom::MemoryWriter.new(mem)
+
 @w.write_ptr(@w.write_int(Voom::NULL))
 
 eggs    = create_item("eggs", 0.19)
@@ -86,8 +80,8 @@ gregory_cart = ShoppingCart.new(@w,
     quantified_item(apples, 4))
 )
 
-gregory_cart.first.item.price = 2.5 # Make eggs much more expensive!
-gregory_cart.first.quantity = 10 # Change the amount of eggs in Gregory's Cart
+#gregory_cart.first.item.price = 2.5 # Make eggs much more expensive!
+#gregory_cart.first.quantity = 10 # Change the amount of eggs in Gregory's Cart
 
 
 puts "<ELEANOR>\n\n"
