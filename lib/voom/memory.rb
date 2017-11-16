@@ -42,18 +42,6 @@ module Voom
       retrieve(address, 2 * WORD_SIZE).pack("C*").unpack(FLOAT_PATTERN).first
     end
 
-    def read_ptr(address, type)
-      send("read_#{type}", read_int(address))
-    end
-
-    def write_ptr(address, type, value)
-      if type.kind_of?(Class)
-        raise NotImplementedError, "TODO"
-      else
-        send("write_#{type}", read_int(address), value)
-      end
-    end
-
     def store(address, bytes)
       @data[address, bytes.length] = bytes
     end
