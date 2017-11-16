@@ -35,11 +35,11 @@ end
 ### .................................
 
 def item(i_name, i_price)
-  Item.allocate(:name => i_name, :price => i_price)
+  Item.write(:name => i_name, :price => i_price)
 end
 
 def quantified_item(item_ref, i_quantity)
-  ItemInCart.allocate(:item => item_ref, :quantity => i_quantity)
+  ItemInCart.write(:item => item_ref, :quantity => i_quantity)
 end
   
 ### .................................
