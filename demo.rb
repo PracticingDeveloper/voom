@@ -32,57 +32,42 @@ class ShoppingCart < Voom::Type
   end
 end 
 
-def create_item(i_name, i_price)
-  @w.write_struct(Item, :name => i_name, :price => i_price)
+### .................................
+
+def item(i_name, i_price)
+  Item.allocate(:name => i_name, :price => i_price)
 end
 
 def quantified_item(item_ref, i_quantity)
-  @w.write_struct(ItemInCart, :item => item_ref, :quantity => i_quantity)
+  ItemInCart.allocate(:item => item_ref, :quantity => i_quantity)
 end
+  
+### .................................
 
-def create_list(*refs)
-  first, *middle, last = refs
+Voom.store = Voom::MemoryWriter.new
 
-  head_ref = @w.write_int!(first)
+eggs    = item("eggs", 0.19)
+milk    = item("milk", 1.5)
+bananas = item("bananas", 0.1)
+apples  = item("apples", 0.75)
 
-  (middle + Array(last)).each do |e|
-    @w.write_int(@w.pos + Voom::WORD_SIZE)
-    @w.write_int(e)
-  end
-
-  @w.write_int(Voom::NULL)  
-
-  head_ref
-end
-
-mem = Voom::Memory.new
-
-@w = Voom::MemoryWriter.new(mem)
-
-@w.write_ptr(@w.write_int(Voom::NULL))
-
-eggs    = create_item("eggs", 0.19)
-milk    = create_item("milk", 1.5)
-bananas = create_item("bananas", 0.1)
-apples  = create_item("apples", 0.75)
-
-eleanor_cart = ShoppingCart.new(@w,
-  create_list(
+eleanor_cart = ShoppingCart.create(
+  :data => [
     quantified_item(eggs, 12),
     quantified_item(bananas, 5),
-    quantified_item(apples, 4))
+    quantified_item(apples, 4)
+  ]
 )
 
-gregory_cart = ShoppingCart.new(@w,
-  create_list(
-    quantified_item(eggs, 6),
-    quantified_item(milk, 3),
-    quantified_item(apples, 4))
-)
+gregory_cart = ShoppingCart.create(
+  :data => [quantified_item(eggs, 6),
+            quantified_item(milk, 3),
+            quantified_item(apples, 4)])
 
-#gregory_cart.first.item.price = 2.5 # Make eggs much more expensive!
-#gregory_cart.first.quantity = 10 # Change the amount of eggs in Gregory's Cart
+gregory_cart.first.item.price = 2.5 # Make eggs much more expensive!
+eleanor_cart.first.quantity = 10 # Change the amount of eggs in Eleanors's Cart
 
+### .................................
 
 puts "<ELEANOR>\n\n"
 puts eleanor_cart
@@ -93,4 +78,5 @@ puts "<GREGORY>\n\n"
 puts gregory_cart
 
 gets
-p mem
+
+p Voom.store

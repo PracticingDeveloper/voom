@@ -2,10 +2,13 @@ module Voom
   class MemoryWriter
     VALUE_SPACE_OFFSET = 0x1000
 
-    def initialize(mem)
-      @mem = mem
+    def initialize
+      @mem = Voom::Memory.new
       @r_pos = 0
       @v_pos = VALUE_SPACE_OFFSET
+
+      # SET A NULL POINTER AT LOCATION 0
+      write_ptr(write_int(Voom::NULL))
     end
 
     attr_reader :v_pos, :mem
@@ -26,8 +29,10 @@ module Voom
       pointers = []
 
       type.fields.each do |n,t|
-        if (t.kind_of?(Class) && t.ancestors.include?(Voom::Type)) || t.kind_of?(Voom::ListReference)
+        if (t.kind_of?(Class) && t.ancestors.include?(Voom::Type))
           pointers << write_ptr(values.fetch(n))
+        elsif t.kind_of?(Voom::ListReference)
+          pointers << write_list(*values.fetch(n))
         else
           pointers << send("write_#{t}!", values.fetch(n))
         end
@@ -35,6 +40,22 @@ module Voom
 
       pointers.first
     end
+
+    def write_list(*refs)
+      first, *middle, last = refs
+
+      head_ref = write_int!(first)
+
+      (middle + Array(last)).each do |e|
+        write_int(pos + Voom::WORD_SIZE)
+        write_int(e)
+      end
+
+      write_int(Voom::NULL)  
+
+      head_ref
+    end
+
 
     def write_ptr(value)
       @mem.write_int(@r_pos, value)
@@ -90,14 +111,12 @@ module Voom
       post_increment(Voom::WORD_SIZE * 2, :v_pos)
     end
 
-    def write_list(type, data_pointers)
-      @mem.write_list(@v_pos, type, data_pointers)
-
-      post_increment(Voom::WORD_SIZE*2*data_pointers.length, :v_pos)
-    end
-
     def seek(pos)
       @v_pos = pos
+    end
+
+    def inspect
+      @mem.inspect
     end
 
     private

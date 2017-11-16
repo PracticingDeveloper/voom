@@ -24,6 +24,14 @@ module Voom
       fields << [name, ListReference.new(target_class)]
     end
 
+    def self.allocate(mem=Voom.store, params)
+      mem.write_struct(self, params)
+    end
+
+    def self.create(mem=Voom.store, params)
+      new(mem, allocate(params))
+    end
+
     def initialize(mem, addr)
       @mem  = mem
 
