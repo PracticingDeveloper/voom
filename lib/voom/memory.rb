@@ -16,6 +16,14 @@ module Voom
       @data = []
     end
 
+    def store(address, bytes)
+      @data[address, bytes.length] = bytes
+    end
+
+    def retrieve(address, bytes)
+      @data[address, bytes]
+    end
+
     def write_int(address, int)
       store(address, [int].pack(INT_PATTERN).bytes)
     end
@@ -40,14 +48,6 @@ module Voom
 
     def read_float(address)
       retrieve(address, 2 * WORD_SIZE).pack("C*").unpack(FLOAT_PATTERN).first
-    end
-
-    def store(address, bytes)
-      @data[address, bytes.length] = bytes
-    end
-
-    def retrieve(address, bytes)
-      @data.slice(address, bytes)
     end
 
     def inspect
