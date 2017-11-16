@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 require_relative "support"
 
-Voom.store = Voom::MemoryWriter.new
-
 eggs    = item("eggs", 0.19)
 milk    = item("milk", 1.5)
 bananas = item("bananas", 0.1)
@@ -27,7 +25,6 @@ Item.update(eggs, :price => 2.5) # Change the price of eggs
 
 eleanor_cart.first.quantity = 10 # Change the amount of eggs in Eleanors's Cart
 
-
 ### .................................
 
 puts "<ELEANOR>\n\n"
@@ -40,4 +37,4 @@ puts gregory_cart
 
 gets
 
-p Voom.store
+puts Voom.store

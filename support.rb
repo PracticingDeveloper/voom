@@ -1,5 +1,7 @@
 require_relative "lib/voom"
 
+Voom.store = Voom::MemoryWriter.new
+
 class Item < Voom::Type
   str    :name
   float  :price

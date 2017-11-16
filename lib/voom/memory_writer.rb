@@ -13,9 +13,7 @@ module Voom
 
     attr_reader :v_pos, :r_pos, :internal
 
-    def pos
-      v_pos
-    end
+    # ......................
 
     def read_struct(address, type)
       Voom::Structure.new(self, address, type)
@@ -37,19 +35,35 @@ module Voom
       pointers.first
     end
 
+    # ......................
+
+    def read_list(address, type)
+      Voom::List.new(type, self, address)
+    end
+
     def write_list(*refs)
       first, *middle, last = refs
 
       head_ref = write_int!(first)
 
       (middle + Array(last)).each do |e|
-        write_int(pos + Voom::WORD_SIZE)
+        write_int(v_pos + Voom::WORD_SIZE)
         write_int(e)
       end
 
       write_int(Voom::NULL)  
 
       head_ref
+    end
+
+    # ......................
+
+    def read_ptr(address, type)
+      if (type.kind_of?(Class) && type.ancestors.include?(Voom::Type)) || type.kind_of?(Voom::ListReference)
+        type.new(self, read_int(address))
+      else
+        @internal.send("read_#{type}", read_int(address))
+      end
     end
 
     def write_ptr(value)
@@ -60,12 +74,10 @@ module Voom
       post_increment(Voom::WORD_SIZE, :r_pos)
     end
 
-    def read_ptr(address, type)
-      if (type.kind_of?(Class) && type.ancestors.include?(Voom::Type)) || type.kind_of?(Voom::ListReference)
-        type.new(self, read_int(address))
-      else
-        @internal.send("read_#{type}", read_int(address))
-      end
+    # ......................
+
+    def read_int(addr)
+      @internal.read_int(addr)
     end
 
     def write_int(value)
@@ -74,8 +86,16 @@ module Voom
       post_increment(Voom::WORD_SIZE, :v_pos)
     end
 
-    def read_int(value)
-      @internal.read_int(value)
+    def write_int!(value)
+      addr = write_int(value)
+
+      write_ptr(addr)
+    end
+
+    # ......................
+
+    def read_str(addr)
+      @internal.read_str(addr)
     end
 
     def write_str(value)
@@ -84,22 +104,16 @@ module Voom
       post_increment(Voom::WORD_SIZE + value.length, :v_pos)
     end
 
-    def write_int!(value)
-      addr = write_int(value)
-
-      write_ptr(addr)
-    end
-
     def write_str!(value)
       addr = write_str(value)
 
       write_ptr(addr)
     end
 
-    def write_float!(value)
-      addr = write_float(value)
+    # ......................
 
-      write_ptr(addr)
+    def read_float(addr)
+      @internal.read_float(addr)
     end
 
     def write_float(value)
@@ -108,12 +122,16 @@ module Voom
       post_increment(Voom::WORD_SIZE * 2, :v_pos)
     end
 
-    def seek(pos)
-      @v_pos = pos
+    def write_float!(value)
+      addr = write_float(value)
+
+      write_ptr(addr)
     end
 
-    def inspect
-      @internal.inspect
+    # ......................
+
+    def to_s
+      @internal.to_s
     end
 
     private
