@@ -26,7 +26,6 @@ module Voom
 
       type.fields.each do |n,t|
         if (t.kind_of?(Class) && t.ancestors.include?(Voom::Type))
-
           pointers << write_ptr(values.fetch(n))
         elsif t.kind_of?(Voom::ListReference)
           pointers << write_list(*values.fetch(n))
@@ -54,6 +53,8 @@ module Voom
     end
 
     def write_ptr(value)
+      raise "Too many references" if @r_pos + Voom::WORD_SIZE >= VALUE_SPACE_OFFSET 
+
       @internal.write_int(@r_pos, value)
 
       post_increment(Voom::WORD_SIZE, :r_pos)
