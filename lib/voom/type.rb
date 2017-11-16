@@ -32,6 +32,16 @@ module Voom
       new(mem, write(params))
     end
 
+    def self.update(mem=Voom.store, ref, params)
+      obj = new(mem, ref)
+
+      params.each do |k,v|
+        obj.send("#{k}=", v)
+      end
+
+      obj
+    end
+      
     def initialize(mem, addr)
       @mem  = mem
 

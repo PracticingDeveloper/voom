@@ -64,7 +64,8 @@ gregory_cart = ShoppingCart.create(
             quantified_item(milk, 3),
             quantified_item(apples, 4)])
 
-gregory_cart.first.item.price = 2.5 # Make eggs much more expensive!
+Item.update(eggs, :price => 2.5)
+
 eleanor_cart.first.quantity = 10 # Change the amount of eggs in Eleanors's Cart
 
 ### .................................
