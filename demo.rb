@@ -27,6 +27,7 @@ Item.update(eggs, :price => 2.5) # Change the price of eggs
 
 eleanor_cart.first.quantity = 10 # Change the amount of eggs in Eleanors's Cart
 
+
 ### .................................
 
 puts "<ELEANOR>\n\n"

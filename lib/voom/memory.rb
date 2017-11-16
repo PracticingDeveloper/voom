@@ -48,6 +48,8 @@ module Voom
     end
 
     def inspect
+      puts "      _0 _1 _2 _3     _4 _5 _6 _7     _8 _9 _A _B     _C _D _E _F"
+
       pad_byte_array(@data).each_slice(16).map.with_index { |e,i| 
         next if e.compact.empty?
 
