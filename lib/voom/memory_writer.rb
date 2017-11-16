@@ -3,7 +3,7 @@ module Voom
     VALUE_SPACE_OFFSET = 0x1000
 
     def initialize
-      @mem = Voom::Memory.new
+      @internal = Voom::Memory.new
       @r_pos = 0
       @v_pos = VALUE_SPACE_OFFSET
 
@@ -11,11 +11,7 @@ module Voom
       write_ptr(write_int(Voom::NULL))
     end
 
-    attr_reader :v_pos, :mem
-
-    def internal
-      @mem 
-    end
+    attr_reader :v_pos, :r_pos, :internal
 
     def pos
       v_pos
@@ -30,6 +26,7 @@ module Voom
 
       type.fields.each do |n,t|
         if (t.kind_of?(Class) && t.ancestors.include?(Voom::Type))
+
           pointers << write_ptr(values.fetch(n))
         elsif t.kind_of?(Voom::ListReference)
           pointers << write_list(*values.fetch(n))
@@ -56,9 +53,8 @@ module Voom
       head_ref
     end
 
-
     def write_ptr(value)
-      @mem.write_int(@r_pos, value)
+      @internal.write_int(@r_pos, value)
 
       post_increment(Voom::WORD_SIZE, :r_pos)
     end
@@ -67,22 +63,22 @@ module Voom
       if (type.kind_of?(Class) && type.ancestors.include?(Voom::Type)) || type.kind_of?(Voom::ListReference)
         type.new(self, read_int(address))
       else
-        @mem.send("read_#{type}", read_int(address))
+        @internal.send("read_#{type}", read_int(address))
       end
     end
 
     def write_int(value)
-      @mem.write_int(@v_pos, value)
+      @internal.write_int(@v_pos, value)
 
       post_increment(Voom::WORD_SIZE, :v_pos)
     end
 
     def read_int(value)
-      @mem.read_int(value)
+      @internal.read_int(value)
     end
 
     def write_str(value)
-      @mem.write_str(@v_pos, value)
+      @internal.write_str(@v_pos, value)
 
       post_increment(Voom::WORD_SIZE + value.length, :v_pos)
     end
@@ -106,7 +102,7 @@ module Voom
     end
 
     def write_float(value)
-      @mem.write_float(@v_pos, value)
+      @internal.write_float(@v_pos, value)
 
       post_increment(Voom::WORD_SIZE * 2, :v_pos)
     end
@@ -116,7 +112,7 @@ module Voom
     end
 
     def inspect
-      @mem.inspect
+      @internal.inspect
     end
 
     private

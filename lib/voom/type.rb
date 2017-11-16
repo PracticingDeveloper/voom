@@ -43,7 +43,8 @@ module Voom
     end
       
     def initialize(mem, addr)
-      @mem  = mem
+      @mem     = mem
+      @address = addr
 
       @data = mem.read_struct(addr, self.class.fields)
 
@@ -52,5 +53,7 @@ module Voom
         define_singleton_method("#{e}=") { |v| @data.send("#{e}=", v) }
       end
     end
+
+    attr_reader :address
   end
 end

@@ -5,9 +5,6 @@ module Voom
   WORD_SIZE = 4
   NULL = 0
 
-  # structure consists of known width primitives
-  # pointers, floats, integers to begin with.
-
   class Memory
     INT_PATTERN = "l<"
     FLOAT_PATTERN = "d"
