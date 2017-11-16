@@ -17,8 +17,8 @@ module Voom
       @data[address, bytes.length] = bytes
     end
 
-    def retrieve(address, bytes)
-      @data[address, bytes]
+    def retrieve(address, size)
+      @data[address, size]
     end
 
     def write_int(address, int)
