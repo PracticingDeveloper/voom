@@ -22,12 +22,6 @@ module Voom
       @memory.read_ptr(@addr, @type)
     end
 
-    def next
-      return nil if next_addr.zero? 
-
-      List.new(@type, @memory, next_addr)
-    end
-
     def each
       node = self
 

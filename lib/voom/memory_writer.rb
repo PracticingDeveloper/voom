@@ -59,6 +59,8 @@ module Voom
     # ......................
 
     def read_ptr(address, type)
+      raise "Requested pointer is outside of reference space range" if address >= VALUE_SPACE_OFFSET
+
       if (type.kind_of?(Class) && type.ancestors.include?(Voom::Type)) || type.kind_of?(Voom::ListReference)
         type.new(self, read_int(address))
       else
