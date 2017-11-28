@@ -21,9 +21,11 @@ gregory_cart = ShoppingCart.create(
 
 ### .................................
 
-Item.update(eggs, :price => 2.5) # Change the price of eggs
+#p Item.fields
 
-eleanor_cart.first.quantity = 10 # Change the amount of eggs in Eleanors's Cart
+#Item.update(eggs, :price => 2.5) # Change the price of eggs
+
+#eleanor_cart.first.quantity = 10 # Change the amount of eggs in Eleanors's Cart
 
 ### .................................
 

@@ -2,9 +2,6 @@ require_relative "list"
 require "ostruct" # FIXME: remove
 
 module Voom
-  WORD_SIZE = 4
-  NULL = 0
-
   class Memory
     INT_PATTERN = "l<"
     FLOAT_PATTERN = "d"
